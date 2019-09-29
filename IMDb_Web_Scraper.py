@@ -73,7 +73,7 @@ for i, (name, link) in enumerate(Pages.items()):
     soup3 = BeautifulSoup(response.text, 'lxml')
     gs = list(map(lambda x: x.text, soup3.select('.subtext a')[:3])) # genres
     url_poster = soup3.select('#title-overview-widget img')[0].get('src') # url_poster
-    if url_poster.find('nopicture') >= 0:
+    if url_poster.find('nopicture') >= 50:
         continue
     Posters.append((name, link, gs, url_poster))
     print('2. Scraping IMDb movie poster urls  {:.2f}% ... '.format(i/nn * 100), end='\r')
@@ -144,45 +144,4 @@ print('3. Done downloading IMDb movie posters                           '.format
 
 
 # In[179]:
-
-
-import matplotlib.image as img
-from sklearn.preprocessing import LabelEncoder
-LE = LabelEncoder()
-df2['target'] = LE.fit_transform(df2['main_genre'])
-
-
-# In[261]:
-
-
-label_dict = LE.classes_
-
-
-# In[253]:
-
-
-# E. convert picture to data
-print("4. Converting posters png's to data ...")
-X = np.zeros((nn, *img.imread('posters/0.png', 0).shape))
-y = np.zeros(nn, dtype=np.int8)
-for i in range(nn):
-    try:
-        X[i] = img.imread('posters/{}.png'.format(i), 0)/255
-        y[i] = int(df2.target[i])
-    except:
-        pass
-
-
-# In[277]:
-
-
-import h5py
-
-hf = h5py.File('data.h5', 'w')
-
-hf.create_dataset('X', data=X)
-hf.create_dataset('y', data=y)
-hf.create_dataset('label_dict', data=np.array(label_dict, dtype='S'))
-hf.close()
-print("5. Data saved to data.h5")
 
